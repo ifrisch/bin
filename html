@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        #searchInput {
+            margin-top: 20px;
+            padding: 5px;
+        }
+
+        #searchButton {
+            margin-top: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+    <title>Item Locator</title>
+</head>
+<body>
+    <h1>Item Locator</h1>
+    <form id="searchForm">
+        <input type="text" id="searchInput" name="searchInput" placeholder="Enter SKU">
+        <button id="searchButton" type="button">Search</button>
+    </form>
+    <div id="result"></div>
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const resultDiv = document.getElementById('result');
+
+        let items = [];
+
+        fetch('bin%20upload.xlsx')
+            .then(response => response.arrayBuffer())
+            .then(data => {
+                const wb = XLSX.read(data, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                items = XLSX.utils.sheet_to_json(ws);
+            });
+
+        searchButton.addEventListener('click', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const matchingItem = items.find(item =>
+                item.sku.toLowerCase() === searchTerm
+            );
+
+            if (matchingItem) {
+                resultDiv.innerHTML = `Bin Location for SKU ${matchingItem.sku}: ${matchingItem['bin# location']}`;
+            } else {
+                resultDiv.innerHTML = 'No results found.';
+            }
+        });
+    </script>
+</body>
+</html>
